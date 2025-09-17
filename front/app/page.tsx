@@ -1,11 +1,12 @@
 "use client";
 import React, { JSX, useCallback, useEffect, useRef, useState } from "react";
 
-// 定数
+// Constants
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
+const GAME_SPEED = 200; // Drop speed base in ms
 
-/** 型定義 */
+// Type Definitions
 type TetrominoShape = (string | number)[][];
 type Position = { x: number; y: number };
 type PlayerState = {
@@ -23,7 +24,7 @@ type CellState = "clear" | "merged";
 type BoardCell = [string | number, CellState];
 type Board = BoardCell[][];
 
-// テトリミノ定義（キーは文字列として扱う）
+// Tetromino definitions
 const TETROMINOS: Record<string, TetrominoData> = {
   "0": { shape: [[0]], color: "transparent" },
   I: {
@@ -84,14 +85,14 @@ const TETROMINOS: Record<string, TetrominoData> = {
   },
 };
 
-// 新しいボードを作る（同一参照にならないように）
+// Create a new board (to avoid identical references)
 const createBoard = (): Board =>
   Array.from({ length: BOARD_HEIGHT }, () =>
     Array.from({ length: BOARD_WIDTH }, () => [0, "clear"] as BoardCell)
   );
 
 export default function TetrisGame(): JSX.Element {
-  // state に型を付与
+  // State with types
   const [board, setBoard] = useState<Board>(() => createBoard());
   const [player, setPlayer] = useState<PlayerState>({
     pos: { x: 0, y: 0 },
@@ -107,20 +108,20 @@ export default function TetrisGame(): JSX.Element {
 
   const gameAreaRef = useRef<HTMLDivElement | null>(null);
 
-  // tetromino をランダム生成
+  // Generate a random tetromino
   const randomTetromino = useCallback((): TetrominoData => {
     const tetrominos = "IJLOSTZ";
     const randTetromino = tetrominos[Math.floor(Math.random() * tetrominos.length)];
     return TETROMINOS[randTetromino];
   }, []);
 
-  // プレイヤーをリセット（中央に整数で配置するよう修正）
+  // Reset the player
   const resetPlayer = useCallback(() => {
     const newTetromino = nextTetromino || randomTetromino();
     const newNextTetromino = randomTetromino();
     setNextTetromino(newNextTetromino);
 
-    // 生成するブロックの幅を考慮して中央に配置（小数にならないよう Math.floor）
+    // Place the new block in the center
     const startX = Math.floor((BOARD_WIDTH - newTetromino.shape[0].length) / 2);
 
     setPlayer({
@@ -134,83 +135,83 @@ export default function TetrisGame(): JSX.Element {
     if (!nextTetromino) resetPlayer();
   }, [nextTetromino, resetPlayer]);
 
-  // 衝突判定（型を明示）
-  const checkCollision = (
-    playerArg: PlayerState,
-    boardArg: Board,
-    move: Position
-  ): boolean => {
-    for (let y = 0; y < playerArg.tetromino.length; y += 1) {
-      for (let x = 0; x < playerArg.tetromino[y].length; x += 1) {
-        if (playerArg.tetromino[y][x] !== 0) {
-          const newY = y + playerArg.pos.y + move.y;
-          const newX = x + playerArg.pos.x + move.x;
+  // Collision detection
+  const checkCollision = useCallback(
+    (playerArg: PlayerState, boardArg: Board, move: Position): boolean => {
+      for (let y = 0; y < playerArg.tetromino.length; y += 1) {
+        for (let x = 0; x < playerArg.tetromino[y].length; x += 1) {
+          if (playerArg.tetromino[y][x] !== 0) {
+            const newY = y + playerArg.pos.y + move.y;
+            const newX = x + playerArg.pos.x + move.x;
 
-          // 盤外チェック
-          if (newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT) {
-            return true;
-          }
-
-          // 上端は許容する（newY < 0 の場合はまだ出現中）
-          if (newY >= 0) {
-            const cell = boardArg[newY][newX];
-            if (!cell || cell[1] !== "clear") {
+            // Check if outside the board
+            if (newX < 0 || newX >= BOARD_WIDTH || newY >= BOARD_HEIGHT) {
               return true;
+            }
+
+            // Allow movement at the very top (y < 0)
+            if (newY >= 0) {
+              const cell = boardArg[newY][newX];
+              if (cell && cell[1] !== "clear") {
+                return true;
+              }
             }
           }
         }
       }
-    }
-    return false;
-  };
+      return false;
+    },
+    []
+  );
 
-  // 左右移動
+  // Move left/right
   const movePlayer = (dir: number) => {
     if (!checkCollision(player, board, { x: dir, y: 0 })) {
       setPlayer((prev) => ({ ...prev, pos: { x: prev.pos.x + dir, y: prev.pos.y } }));
     }
   };
 
-  // 落下（useCallback にして依存関係を明示）
+  // Drop
   const drop = useCallback(() => {
     if (!checkCollision(player, board, { x: 0, y: 1 })) {
       setPlayer((prev) => ({ ...prev, pos: { x: prev.pos.x, y: prev.pos.y + 1 }, collided: false }));
     } else {
+      // Check for game over (piece collided at the top)
       if (player.pos.y < 1) {
         setIsGameOver(true);
         return;
       }
       setPlayer((prev) => ({ ...prev, collided: true }));
     }
-  }, [player, board]);
-
-  // ハードドロップ
-  const hardDrop = useCallback(() => {
-    let newY = player.pos.y;
-    // 衝突する直前まで y を進める
-    while (!checkCollision(player, board, { x: 0, y: newY - player.pos.y + 1 })) {
-      newY++;
-    }
-    setPlayer((prev) => ({ ...prev, pos: { x: prev.pos.x, y: newY }, collided: true }));
   }, [player, board, checkCollision]);
 
+  // Hard drop fix: Move down one cell at a time until a collision is found
+  const hardDrop = useCallback(() => {
+    let dropY = 0;
+    while (!checkCollision(player, board, { x: 0, y: dropY + 1 })) {
+      dropY++;
+    }
+    setPlayer((prev) => ({
+      ...prev,
+      pos: { x: prev.pos.x, y: prev.pos.y + dropY },
+      collided: true,
+    }));
+  }, [player, board, checkCollision]);
 
-  // 回転（右回り）
+  // Rotate clockwise
   const rotate = (matrix: TetrominoShape) => {
-    // transpose + reverse each row で 90deg 時計回り
+    // Transpose + reverse each row for 90-degree clockwise rotation
     const rotated: TetrominoShape = matrix[0].map((_, index) => matrix.map((row) => row[index]).reverse());
 
     const originalPos = { ...player.pos };
     let offset = 1;
     const newPlayer: PlayerState = { ...player, tetromino: rotated };
 
-    // 衝突がある限り左右にずらしてみる
+    // Wall kick: Try to shift left/right if collision occurs
     while (checkCollision(newPlayer, board, { x: 0, y: 0 })) {
       newPlayer.pos.x += offset;
-      // offset を +- に振る
       offset = -(offset + (offset > 0 ? 1 : -1));
       if (Math.abs(offset) > newPlayer.tetromino[0].length) {
-        // 回転できない
         setPlayer((prev) => ({ ...prev, pos: originalPos }));
         return;
       }
@@ -218,11 +219,11 @@ export default function TetrisGame(): JSX.Element {
     setPlayer(newPlayer);
   };
 
-  // player.collided が true になったらボードへマージして行消し
+  // When player collides, merge tetromino to the board and clear lines
   useEffect(() => {
     if (!player.collided) return;
 
-    // board をクローン
+    // Clone the board
     const newBoard: Board = board.map((row) => row.map((cell) => ([cell[0], cell[1]] as BoardCell)));
 
     player.tetromino.forEach((row, y) => {
@@ -237,12 +238,12 @@ export default function TetrisGame(): JSX.Element {
       });
     });
 
-    // 行消し
+    // Clear completed lines
     let clearedRows = 0;
     const sweptBoard = newBoard.reduce<Board>((ack, row) => {
       if (row.every((cell) => cell[1] === "merged")) {
         clearedRows += 1;
-        // 空行を先頭に追加
+        // Add a clear row to the top
         ack.unshift(Array.from({ length: BOARD_WIDTH }, () => [0, "clear"] as BoardCell));
       } else {
         ack.push(row);
@@ -258,24 +259,24 @@ export default function TetrisGame(): JSX.Element {
 
     setBoard(sweptBoard);
     resetPlayer();
-  }, [player.collided]);
+  }, [player.collided, board, level, resetPlayer]);
 
-  // レベルアップ
+  // Level up
   useEffect(() => {
     if (rows >= level * 10) {
       setLevel((prev) => prev + 1);
     }
   }, [rows, level]);
 
-  // ゲームループ（簡易版：setTimeout を繰り返す）
-  const dropInterval = 1000 / level + 200;
+  // Game loop
+  // The drop interval decreases as the level increases.
+  const dropInterval = GAME_SPEED / level;
   const dropTime = useRef<number | null>(null);
 
   const gameLoop = useCallback(() => {
     if (!isPaused && !isGameOver) {
       drop();
     }
-    // 再帰的に呼ぶ（クリーンアップで clearTimeout する）
     dropTime.current = window.setTimeout(gameLoop, dropInterval) as unknown as number;
   }, [isPaused, isGameOver, drop, dropInterval]);
 
@@ -287,7 +288,7 @@ export default function TetrisGame(): JSX.Element {
     };
   }, [gameLoop, dropInterval]);
 
-  // キー操作（div の onKeyDown 用）
+  // Keyboard controls
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (isGameOver) return;
 
@@ -310,18 +311,16 @@ export default function TetrisGame(): JSX.Element {
       movePlayer(1);
     } else if (key === "ArrowDown") {
       drop();
-    } else if (key === "ArrowUp" || key === " " || key === "Spacebar") {
+    } else if (key === "ArrowUp") {
       e.preventDefault();
       rotate(player.tetromino);
-    }
-
-    if (key === "ArrowUp") {
+    } else if (key === " " || key === "Spacebar") {
       e.preventDefault();
       hardDrop();
     }
   };
 
-  // 再スタート
+  // Restart the game
   const handleRestart = () => {
     setBoard(createBoard());
     setScore(0);
@@ -333,14 +332,14 @@ export default function TetrisGame(): JSX.Element {
     resetPlayer();
   };
 
-  // セル表示コンポーネント
+  // Cell component
   const Cell: React.FC<{ type: string | number }> = ({ type }) => {
     const color = type === 0 ? "bg-gray-800/50" : TETROMINOS[String(type)].color;
     const baseStyle = "w-full h-full rounded-sm";
     return <div className={`${baseStyle} ${color}`} />;
   };
 
-  // ミニボード（NEXT）
+  // Mini board (NEXT)
   const MiniBoard: React.FC<{ tetromino: TetrominoData | null }> = ({ tetromino }) => (
     <div className="grid grid-cols-4 grid-rows-4 gap-px">
       {tetromino?.shape.map((row, y) =>
@@ -363,7 +362,7 @@ export default function TetrisGame(): JSX.Element {
       ref={gameAreaRef}
     >
       <div className="flex flex-col md:flex-row gap-8 items-start">
-        {/* ゲームボード */}
+        {/* Game Board */}
         <div className="relative border-2 border-gray-700 rounded-lg p-2 bg-black/30 backdrop-blur-sm shadow-2xl shadow-purple-500/10">
           <div
             className="grid gap-px"
@@ -377,7 +376,7 @@ export default function TetrisGame(): JSX.Element {
               row.map((cell, x) => <Cell key={`${y}-${x}`} type={cell[0]} />)
             )}
 
-            {/* プレイヤーピース（絶対配置） */}
+            {/* Player Piece (absolute position) */}
             {player.tetromino.map((row, y) =>
               row.map(
                 (value, x) =>
@@ -400,7 +399,7 @@ export default function TetrisGame(): JSX.Element {
             )}
           </div>
 
-          {/* オーバーレイ */}
+          {/* Overlay */}
           {(isGameOver || isPaused) && (
             <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center rounded-md z-10">
               <h2 className="text-4xl font-bold tracking-widest text-red-500 mb-4">
@@ -417,7 +416,7 @@ export default function TetrisGame(): JSX.Element {
           )}
         </div>
 
-        {/* サイドパネル */}
+        {/* Side Panel */}
         <div className="w-full md:w-48 flex flex-row md:flex-col gap-4">
           <div className="flex-1 p-4 bg-black/30 backdrop-blur-sm border border-gray-700 rounded-lg">
             <h3 className="text-lg font-bold text-purple-400 mb-2">SCORE</h3>
@@ -458,8 +457,9 @@ export default function TetrisGame(): JSX.Element {
           <div className="w-full p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-gray-400 hidden md:block">
             <h4 className="font-bold text-white mb-1">Controls</h4>
             <p>← →: Move</p>
-            <p>↑ / Space: Rotate</p>
+            <p>↑: Rotate</p>
             <p>↓: Soft Drop</p>
+            <p>Space: Hard Drop</p>
           </div>
         </div>
       </div>
