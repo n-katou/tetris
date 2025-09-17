@@ -558,18 +558,30 @@ export default function App(): JSX.Element {
                 HARD DROP
               </button>
             </div>
-            <div className="flex justify-center w-full">
-              {/* Added a button to redirect to a mobile version */}
-              <a
-                href="https://tetris-five-smoky.vercel.app/"
-                className="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-md font-bold transition-colors text-center"
-                target="_self"
-              >
-                Go to PC
-              </a>
-            </div>
           </div>
         </div>
+      </div>
+      {/* Universal control bar at the bottom for all screen sizes */}
+      <div className="flex flex-col md:flex-row gap-2 mt-4 w-full justify-center max-w-sm">
+        <button
+          onClick={() => setIsPaused((p) => !p)}
+          className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md font-bold transition-colors"
+        >
+          {isPaused ? "Resume (P)" : "Pause (P)"}
+        </button>
+        <button
+          onClick={handleRestart}
+          className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-md font-bold transition-colors"
+        >
+          Restart (R)
+        </button>
+        <a
+          href="https://tetris-five-smoky.vercel.app/"
+          className="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-md font-bold transition-colors text-center"
+          target="_self"
+        >
+          Go to PC
+        </a>
       </div>
     </div>
   );
