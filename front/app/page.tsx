@@ -184,6 +184,17 @@ export default function TetrisGame(): JSX.Element {
     }
   }, [player, board]);
 
+  // ハードドロップ
+  const hardDrop = useCallback(() => {
+    let newY = player.pos.y;
+    // 衝突する直前まで y を進める
+    while (!checkCollision(player, board, { x: 0, y: newY - player.pos.y + 1 })) {
+      newY++;
+    }
+    setPlayer((prev) => ({ ...prev, pos: { x: prev.pos.x, y: newY }, collided: true }));
+  }, [player, board, checkCollision]);
+
+
   // 回転（右回り）
   const rotate = (matrix: TetrominoShape) => {
     // transpose + reverse each row で 90deg 時計回り
@@ -302,6 +313,11 @@ export default function TetrisGame(): JSX.Element {
     } else if (key === "ArrowUp" || key === " " || key === "Spacebar") {
       e.preventDefault();
       rotate(player.tetromino);
+    }
+
+    if (key === "ArrowUp") {
+      e.preventDefault();
+      hardDrop();
     }
   };
 
