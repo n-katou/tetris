@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    volumes:
+      - ./front:/app
+    command: yarn dev -p 4000
+    ports:
+      - "4000:4000"
+    tty: true
+    stdin_open: true
+    networks:
+      - app_network # 追加
+
+volumes:
+  postgres_data:
+  bundle_data:
+  node_modules:
+
+
+networks:
+  # 外側で定義
+  app_network:
+    # ネットワーク名とその設定
+    driver: bridge # ブリッジネットワークを使用
