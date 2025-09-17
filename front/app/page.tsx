@@ -465,7 +465,7 @@ export default function App(): JSX.Element {
             </button>
             {/* Added a button to redirect to a mobile version */}
             <a
-              href="https://tetris-five-smoky/mobile.vercel.app/"
+              href="https://tetris-five-smoky.vercel.app/mobile"
               className="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-md font-bold transition-colors text-center"
               target="_self"
             >
