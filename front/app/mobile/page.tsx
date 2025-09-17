@@ -402,22 +402,7 @@ export default function App(): JSX.Element {
           {/* Mobile Info & Title */}
           <div className="md:hidden flex flex-col items-center w-full mb-4">
             <h1 className="text-4xl font-extrabold text-white mb-2">TETRIS</h1>
-            <div className="flex justify-between w-full">
-              <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
-                <h3 className="text-sm font-bold text-purple-400">SCORE</h3>
-                <p className="text-lg tracking-wider">{score}</p>
-              </div>
-              <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3 mx-2">
-                <h3 className="text-sm font-bold text-purple-400">LEVEL</h3>
-                <p className="text-lg tracking-wider">{level}</p>
-              </div>
-              <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
-                <h3 className="text-sm font-bold text-purple-400">NEXT</h3>
-                <div className="flex items-center justify-center">
-                  <MiniBoard tetromino={nextTetromino} />
-                </div>
-              </div>
-            </div>
+
           </div>
 
           {/* Game Board */}
@@ -510,9 +495,7 @@ export default function App(): JSX.Element {
               HARD<br />DROP
             </button>
           </div>
-          <div className="md:hidden w-full text-center text-gray-400 text-xs mt-2">
-            <p>P: Pause | R: Restart</p>
-          </div>
+
         </div>
 
         {/* Right Side (PC) */}
@@ -558,6 +541,22 @@ export default function App(): JSX.Element {
                 HARD DROP
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-between w-full">
+        <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
+          <h3 className="text-sm font-bold text-purple-400">SCORE</h3>
+          <p className="text-lg tracking-wider">{score}</p>
+        </div>
+        <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3 mx-2">
+          <h3 className="text-sm font-bold text-purple-400">LEVEL</h3>
+          <p className="text-lg tracking-wider">{level}</p>
+        </div>
+        <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
+          <h3 className="text-sm font-bold text-purple-400">NEXT</h3>
+          <div className="flex items-center justify-center">
+            <MiniBoard tetromino={nextTetromino} />
           </div>
         </div>
       </div>
