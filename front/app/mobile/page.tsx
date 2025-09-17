@@ -367,166 +367,207 @@ export default function App(): JSX.Element {
 
   return (
     <div
-      className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white font-mono flex flex-col items-center justify-center p-4"
+      className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white font-mono flex flex-col items-center justify-center p-4 overflow-auto"
       onKeyDown={handleKeyDown}
       tabIndex={0}
       ref={gameAreaRef}
     >
-      <div className="flex flex-col md:flex-row gap-8 items-start">
-        {/* Game Board */}
-        <div className="relative border-2 border-gray-700 rounded-lg p-2 bg-black/30 backdrop-blur-sm shadow-2xl shadow-purple-500/10">
-          <div
-            className="grid gap-px"
-            style={{
-              gridTemplateColumns: `repeat(${BOARD_WIDTH}, 1fr)`,
-              width: "min(70vw, 300px)",
-              height: "min(140vw, 600px)",
-            }}
-          >
-            {board.map((row, y) =>
-              row.map((cell, x) => <Cell key={`${y}-${x}`} type={cell[0]} />)
-            )}
-
-            {/* Player Piece (absolute position) */}
-            {player.tetromino.map((row, y) =>
-              row.map(
-                (value, x) =>
-                  value !== 0 && (
-                    <div
-                      key={`p-${y}-${x}`}
-                      className="absolute rounded-sm"
-                      style={{
-                        top: `${(player.pos.y + y) * (100 / BOARD_HEIGHT)}%`,
-                        left: `${(player.pos.x + x) * (100 / BOARD_WIDTH)}%`,
-                        width: `${100 / BOARD_WIDTH}%`,
-                        height: `${100 / BOARD_HEIGHT}%`,
-                        padding: "1px",
-                      }}
-                    >
-                      <div className={`w-full h-full rounded-sm ${TETROMINOS[String(value)].color}`} />
-                    </div>
-                  )
-              )
-            )}
-          </div>
-
-          {/* Overlay */}
-          {(isGameOver || isPaused) && (
-            <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center rounded-md z-10">
-              <h2 className="text-4xl font-bold tracking-widest text-red-500 mb-4">
-                {isGameOver ? "GAME OVER" : "PAUSED"}
-              </h2>
-              {isGameOver && <p className="text-xl">Score: {score}</p>}
-              <button
-                onClick={handleRestart}
-                className="mt-8 px-6 py-2 bg-purple-600 hover:bg-purple-500 rounded-md text-lg font-bold transition-all duration-200 shadow-lg"
-              >
-                Restart
-              </button>
+      <div className="flex flex-col md:flex-row gap-8 items-center md:items-start w-full max-w-5xl">
+        {/* Left Side (PC) */}
+        <div className="hidden md:flex flex-1 flex-col items-center justify-center gap-4">
+          <h1 className="text-4xl font-extrabold text-white mb-4">TETRIS</h1>
+          <div className="flex flex-col gap-4 p-4 rounded-lg bg-black/30 border border-gray-700 shadow-2xl shadow-purple-500/10 w-full max-w-sm">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-purple-400">SCORE</h3>
+              <p className="text-3xl font-extrabold tracking-wider">{score}</p>
             </div>
-          )}
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-purple-400">LEVEL</h3>
+              <p className="text-3xl font-extrabold tracking-wider">{level}</p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-purple-400">NEXT</h3>
+              <div className="flex items-center justify-center mt-2">
+                <MiniBoard tetromino={nextTetromino} />
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-sm font-bold text-gray-400">P: Pause | R: Restart</p>
+            </div>
+          </div>
         </div>
 
-        {/* Side Panel */}
-        <div className="w-full md:w-48 flex flex-row md:flex-col gap-4">
-          <div className="flex-1 p-4 bg-black/30 backdrop-blur-sm border border-gray-700 rounded-lg">
-            <h3 className="text-lg font-bold text-purple-400 mb-2">SCORE</h3>
-            <p className="text-3xl tracking-wider">{score}</p>
-          </div>
-
-          <div className="flex-1 p-4 bg-black/30 backdrop-blur-sm border border-gray-700 rounded-lg">
-            <h3 className="text-lg font-bold text-purple-400 mb-2">NEXT</h3>
-            <div className="flex items-center justify-center h-16">
-              <MiniBoard tetromino={nextTetromino} />
+        {/* Game Area */}
+        <div className="flex flex-col items-center gap-4 w-full md:w-auto order-1 md:order-2">
+          {/* Mobile Info & Title */}
+          <div className="md:hidden flex flex-col items-center w-full mb-4">
+            <h1 className="text-4xl font-extrabold text-white mb-2">TETRIS</h1>
+            <div className="flex justify-between w-full">
+              <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
+                <h3 className="text-sm font-bold text-purple-400">SCORE</h3>
+                <p className="text-lg tracking-wider">{score}</p>
+              </div>
+              <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3 mx-2">
+                <h3 className="text-sm font-bold text-purple-400">LEVEL</h3>
+                <p className="text-lg tracking-wider">{level}</p>
+              </div>
+              <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
+                <h3 className="text-sm font-bold text-purple-400">NEXT</h3>
+                <div className="flex items-center justify-center">
+                  <MiniBoard tetromino={nextTetromino} />
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="w-full p-4 bg-black/30 backdrop-blur-sm border border-gray-700 rounded-lg">
-            <p>
-              <strong>Level:</strong> {level}
-            </p>
-            <p>
-              <strong>Lines:</strong> {rows}
-            </p>
+          {/* Game Board */}
+          <div className="relative border-2 border-gray-700 rounded-lg p-1 sm:p-2 bg-black/30 backdrop-blur-sm shadow-2xl shadow-purple-500/10 w-full aspect-[1/2] max-w-md">
+            <div
+              className="grid gap-px h-full w-full"
+              style={{
+                gridTemplateColumns: `repeat(${BOARD_WIDTH}, 1fr)`,
+                gridTemplateRows: `repeat(${BOARD_HEIGHT}, 1fr)`,
+              }}
+            >
+              {board.map((row, y) =>
+                row.map((cell, x) => <Cell key={`${y}-${x}`} type={cell[0]} />)
+              )}
+
+              {/* Player Piece (absolute position) */}
+              {player.tetromino.map((row, y) =>
+                row.map(
+                  (value, x) =>
+                    value !== 0 && (
+                      <div
+                        key={`p-${y}-${x}`}
+                        className="absolute rounded-sm"
+                        style={{
+                          top: `${(player.pos.y + y) * (100 / BOARD_HEIGHT)}%`,
+                          left: `${(player.pos.x + x) * (100 / BOARD_WIDTH)}%`,
+                          width: `${100 / BOARD_WIDTH}%`,
+                          height: `${100 / BOARD_HEIGHT}%`,
+                          padding: "1px",
+                        }}
+                      >
+                        <div className={`w-full h-full rounded-sm ${TETROMINOS[String(value)].color}`} />
+                      </div>
+                    )
+                )
+              )}
+            </div>
+
+            {/* Overlay */}
+            {(isGameOver || isPaused) && (
+              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center rounded-md z-10">
+                <h2 className="text-4xl font-bold tracking-widest text-red-500 mb-4">
+                  {isGameOver ? "GAME OVER" : "PAUSED"}
+                </h2>
+                {isGameOver && <p className="text-xl">Score: {score}</p>}
+                <button
+                  onClick={handleRestart}
+                  className="mt-8 px-6 py-2 bg-purple-600 hover:bg-purple-500 rounded-md text-lg font-bold transition-all duration-200 shadow-lg"
+                >
+                  Restart
+                </button>
+              </div>
+            )}
           </div>
 
-          <div className="w-full flex flex-row md:flex-col gap-2">
+          {/* Mobile Controls */}
+          <div className="md:hidden flex justify-around w-full max-w-xs mt-4">
             <button
-              onClick={() => setIsPaused((p) => !p)}
-              className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md font-bold transition-colors"
+              onClick={() => movePlayer(-1)}
+              className="w-12 h-12 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-xl shadow-lg"
             >
-              {isPaused ? "Resume (P)" : "Pause (P)"}
+              &lt;
             </button>
             <button
-              onClick={handleRestart}
-              className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-md font-bold transition-colors"
+              onClick={() => movePlayer(1)}
+              className="w-12 h-12 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-xl shadow-lg"
             >
-              Restart (R)
+              &gt;
             </button>
-            {/* Added a button to redirect to a mobile version */}
-            <a
-              href="https://tetris-five-smoky/mobile.vercel.app/"
-              className="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-md font-bold transition-colors text-center"
-              target="_self"
-            >
-              Go to Mobile
-            </a>
-          </div>
-
-          <div className="w-full p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-gray-400 hidden md:block">
-            <h4 className="font-bold text-white mb-1">Controls</h4>
-            <p>← →: Move</p>
-            <p>↑: Rotate</p>
-            <p>↓: Soft Drop</p>
-            <p>Space: Hard Drop</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Controls (visible on small screens) */}
-      <div className="md:hidden flex flex-col gap-4 mt-8 w-full items-center">
-        <div className="flex justify-center gap-12 w-full">
-          {/* Rotate & Hard Drop */}
-          <button
-            onClick={() => rotate(player.tetromino)}
-            className="w-24 h-24 bg-blue-600 active:bg-blue-500 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.42 10l-4.21-4.21m0 0a3.422 3.422 0 000-4.842A3.422 3.422 0 0015.58 6.58L10.58 11.58M15.58 6.58L10.58 11.58M4.21 19.42L19.42 4.21" />
-            </svg>
-          </button>
-          <button
-            onClick={hardDrop}
-            className="w-24 h-24 bg-red-600 active:bg-red-500 rounded-full flex items-center justify-center text-xl font-bold shadow-lg transition-colors"
-          >
-            HARD<br />DROP
-          </button>
-        </div>
-
-        {/* Movement and Soft Drop */}
-        <div className="grid grid-cols-3 gap-2 w-full max-w-xs mt-4">
-          <button
-            onClick={() => movePlayer(-1)}
-            className="col-start-1 col-end-2 w-20 h-20 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors"
-          >
-            &lt;
-          </button>
-          <div className="col-start-2 col-end-3"></div>
-          <button
-            onClick={() => movePlayer(1)}
-            className="col-start-3 col-end-4 w-20 h-20 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors"
-          >
-            &gt;
-          </button>
-          <div className="col-span-3 flex justify-center mt-2">
             <button
               onClick={() => drop()}
-              className="w-20 h-20 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors"
+              className="w-12 h-12 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-xl shadow-lg"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a.5.5 0 01-.354-.854l4-4a.5.5 0 01.708.708l-3.646 3.646L10 18zM6 13a.5.5 0 01-.354-.854l4-4a.5.5 0 01.708.708l-3.646 3.646L6 13zM10 2a.5.5 0 01.5.5V17a.5.5 0 01-1 0V2.5a.5.5 0 01.5-.5z" clipRule="evenodd" />
               </svg>
             </button>
+            <button
+              onClick={() => rotate(player.tetromino)}
+              className="w-12 h-12 bg-blue-600 active:bg-blue-500 rounded-full flex items-center justify-center text-xl shadow-lg"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.42 10l-4.21-4.21m0 0a3.422 3.422 0 000-4.842A3.422 3.422 0 0015.58 6.58L10.58 11.58M15.58 6.58L10.58 11.58M4.21 19.42L19.42 4.21" />
+              </svg>
+            </button>
+            <button
+              onClick={hardDrop}
+              className="w-12 h-12 bg-red-600 active:bg-red-500 rounded-full flex items-center justify-center text-xs font-bold shadow-lg"
+            >
+              HARD<br />DROP
+            </button>
+          </div>
+          <div className="md:hidden w-full text-center text-gray-400 text-xs mt-2">
+            <p>P: Pause | R: Restart</p>
+          </div>
+        </div>
+
+        {/* Right Side (PC) */}
+        <div className="hidden md:flex flex-1 flex-col items-center justify-center gap-4">
+          <div className="flex flex-col gap-4 p-4 rounded-lg bg-black/30 border border-gray-700 shadow-2xl shadow-purple-500/10 w-full max-w-sm">
+            <div className="flex justify-around w-full">
+              <button
+                onClick={() => movePlayer(-1)}
+                className="w-16 h-16 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-2xl shadow-lg"
+              >
+                &lt;
+              </button>
+              <button
+                onClick={() => movePlayer(1)}
+                className="w-16 h-16 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-2xl shadow-lg"
+              >
+                &gt;
+              </button>
+            </div>
+            <div className="flex justify-around w-full">
+              <button
+                onClick={() => drop()}
+                className="w-16 h-16 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-2xl shadow-lg"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a.5.5 0 01-.354-.854l4-4a.5.5 0 01.708.708l-3.646 3.646L10 18zM6 13a.5.5 0 01-.354-.854l4-4a.5.5 0 01.708.708l-3.646 3.646L6 13zM10 2a.5.5 0 01.5.5V17a.5.5 0 01-1 0V2.5a.5.5 0 01.5-.5z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <button
+                onClick={() => rotate(player.tetromino)}
+                className="w-16 h-16 bg-blue-600 active:bg-blue-500 rounded-full flex items-center justify-center text-2xl shadow-lg"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.42 10l-4.21-4.21m0 0a3.422 3.422 0 000-4.842A3.422 3.422 0 0015.58 6.58L10.58 11.58M15.58 6.58L10.58 11.58M4.21 19.42L19.42 4.21" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex justify-center w-full">
+              <button
+                onClick={hardDrop}
+                className="w-36 h-16 bg-red-600 active:bg-red-500 rounded-full flex items-center justify-center text-lg font-bold shadow-lg"
+              >
+                HARD DROP
+              </button>
+            </div>
+            <div className="flex justify-center w-full">
+              {/* Added a button to redirect to a mobile version */}
+              <a
+                href="https://tetris-five-smoky.vercel.app/"
+                className="w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-md font-bold transition-colors text-center"
+                target="_self"
+              >
+                Go to PC
+              </a>
+            </div>
           </div>
         </div>
       </div>
