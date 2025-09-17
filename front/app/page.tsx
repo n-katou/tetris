@@ -91,7 +91,7 @@ const createBoard = (): Board =>
     Array.from({ length: BOARD_WIDTH }, () => [0, "clear"] as BoardCell)
   );
 
-export default function TetrisGame(): JSX.Element {
+export default function App(): JSX.Element {
   // State with types
   const [board, setBoard] = useState<Board>(() => createBoard());
   const [player, setPlayer] = useState<PlayerState>({
@@ -340,19 +340,30 @@ export default function TetrisGame(): JSX.Element {
   };
 
   // Mini board (NEXT)
-  const MiniBoard: React.FC<{ tetromino: TetrominoData | null }> = ({ tetromino }) => (
-    <div className="grid grid-cols-4 grid-rows-4 gap-px">
-      {tetromino?.shape.map((row, y) =>
-        row.map((cell, x) => (
-          <div
-            key={`${y}-${x}`}
-            className={`w-4 h-4 rounded-sm ${cell ? TETROMINOS[String(cell)].color : "bg-transparent"}`}
-          />
-        ))
-      )}
-      {!tetromino && Array.from({ length: 16 }).map((_, i) => <div key={i} className="w-4 h-4" />)}
-    </div>
-  );
+  const MiniBoard: React.FC<{ tetromino: TetrominoData | null }> = ({ tetromino }) => {
+    const shape = tetromino?.shape || [[0]];
+    const shapeHeight = shape.length;
+    const shapeWidth = shape[0].length;
+    const offsetY = Math.floor((4 - shapeHeight) / 2);
+    const offsetX = Math.floor((4 - shapeWidth) / 2);
+
+    return (
+      <div className="grid grid-cols-4 grid-rows-4 gap-px">
+        {Array.from({ length: 16 }).map((_, i) => {
+          const y = Math.floor(i / 4);
+          const x = i % 4;
+          const cellValue = shape[y - offsetY]?.[x - offsetX];
+          const type = cellValue || 0;
+          return (
+            <div
+              key={`${y}-${x}`}
+              className={`w-4 h-4 rounded-sm ${type ? TETROMINOS[String(type)].color : "bg-transparent"}`}
+            />
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div
