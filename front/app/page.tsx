@@ -4,7 +4,7 @@ import React, { JSX, useCallback, useEffect, useRef, useState } from "react";
 // Constants
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
-const GAME_SPEED = 200; // Drop speed base in ms
+const GAME_SPEED = 500; // Drop speed base in ms (slower for easier difficulty)
 
 // Type Definitions
 type TetrominoShape = (string | number)[][];
@@ -367,7 +367,7 @@ export default function App(): JSX.Element {
 
   return (
     <div
-      className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white font-mono flex items-center justify-center p-4"
+      className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white font-mono flex flex-col items-center justify-center p-4"
       onKeyDown={handleKeyDown}
       tabIndex={0}
       ref={gameAreaRef}
@@ -471,6 +471,54 @@ export default function App(): JSX.Element {
             <p>↑: Rotate</p>
             <p>↓: Soft Drop</p>
             <p>Space: Hard Drop</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Controls (visible on small screens) */}
+      <div className="md:hidden flex flex-col gap-4 mt-8 w-full items-center">
+        <div className="flex justify-center gap-12 w-full">
+          {/* Rotate & Hard Drop */}
+          <button
+            onClick={() => rotate(player.tetromino)}
+            className="w-24 h-24 bg-blue-600 active:bg-blue-500 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.42 10l-4.21-4.21m0 0a3.422 3.422 0 000-4.842A3.422 3.422 0 0015.58 6.58L10.58 11.58M15.58 6.58L10.58 11.58M4.21 19.42L19.42 4.21" />
+            </svg>
+          </button>
+          <button
+            onClick={hardDrop}
+            className="w-24 h-24 bg-red-600 active:bg-red-500 rounded-full flex items-center justify-center text-xl font-bold shadow-lg transition-colors"
+          >
+            HARD<br />DROP
+          </button>
+        </div>
+
+        {/* Movement and Soft Drop */}
+        <div className="grid grid-cols-3 gap-2 w-full max-w-xs mt-4">
+          <button
+            onClick={() => movePlayer(-1)}
+            className="col-start-1 col-end-2 w-20 h-20 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors"
+          >
+            &lt;
+          </button>
+          <div className="col-start-2 col-end-3"></div>
+          <button
+            onClick={() => movePlayer(1)}
+            className="col-start-3 col-end-4 w-20 h-20 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors"
+          >
+            &gt;
+          </button>
+          <div className="col-span-3 flex justify-center mt-2">
+            <button
+              onClick={() => drop()}
+              className="w-20 h-20 bg-gray-700 active:bg-gray-600 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a.5.5 0 01-.354-.854l4-4a.5.5 0 01.708.708l-3.646 3.646L10 18zM6 13a.5.5 0 01-.354-.854l4-4a.5.5 0 01.708.708l-3.646 3.646L6 13zM10 2a.5.5 0 01.5.5V17a.5.5 0 01-1 0V2.5a.5.5 0 01.5-.5z" clipRule="evenodd" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
