@@ -402,11 +402,10 @@ export default function App(): JSX.Element {
           {/* Mobile Info & Title */}
           <div className="md:hidden flex flex-col items-center w-full mb-4">
             <h1 className="text-4xl font-extrabold text-white mb-2">TETRIS</h1>
-
           </div>
 
           {/* Game Board */}
-          <div className="relative border-2 border-gray-700 rounded-lg p-1 sm:p-2 bg-black/30 backdrop-blur-sm shadow-2xl shadow-purple-500/10 w-full aspect-[1/2] max-w-md">
+          <div className="relative border-2 border-gray-700 rounded-lg p-1 sm:p-2 bg-black/30 backdrop-blur-sm shadow-2xl shadow-purple-500/10 w-full aspect-[1/2] max-w-md max-h-[80vh]">
             <div
               className="grid gap-px h-full w-full"
               style={{
@@ -495,7 +494,9 @@ export default function App(): JSX.Element {
               HARD<br />DROP
             </button>
           </div>
-
+          <div className="md:hidden w-full text-center text-gray-400 text-xs mt-2">
+            <p>P: Pause | R: Restart</p>
+          </div>
         </div>
 
         {/* Right Side (PC) */}
@@ -544,24 +545,24 @@ export default function App(): JSX.Element {
           </div>
         </div>
       </div>
-      <div className="flex justify-between w-full">
-        <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
-          <h3 className="text-sm font-bold text-purple-400">SCORE</h3>
-          <p className="text-lg tracking-wider">{score}</p>
-        </div>
-        <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3 mx-2">
-          <h3 className="text-sm font-bold text-purple-400">LEVEL</h3>
-          <p className="text-lg tracking-wider">{level}</p>
-        </div>
-        <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
-          <h3 className="text-sm font-bold text-purple-400">NEXT</h3>
-          <div className="flex items-center justify-center">
-            <MiniBoard tetromino={nextTetromino} />
-          </div>
-        </div>
-      </div>
       {/* Universal control bar at the bottom for all screen sizes */}
       <div className="flex flex-col md:flex-row gap-2 mt-4 w-full justify-center max-w-sm">
+        <div className="flex justify-between w-full">
+          <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
+            <h3 className="text-sm font-bold text-purple-400">SCORE</h3>
+            <p className="text-lg tracking-wider">{score}</p>
+          </div>
+          <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3 mx-2">
+            <h3 className="text-sm font-bold text-purple-400">LEVEL</h3>
+            <p className="text-lg tracking-wider">{level}</p>
+          </div>
+          <div className="p-3 bg-black/30 border border-gray-700 rounded-lg text-sm text-center w-1/3">
+            <h3 className="text-sm font-bold text-purple-400">NEXT</h3>
+            <div className="flex items-center justify-center">
+              <MiniBoard tetromino={nextTetromino} />
+            </div>
+          </div>
+        </div>
         <button
           onClick={() => setIsPaused((p) => !p)}
           className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md font-bold transition-colors"
