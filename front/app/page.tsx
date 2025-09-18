@@ -4,7 +4,7 @@ import React, { JSX, useCallback, useEffect, useRef, useState } from "react";
 // Constants
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
-const GAME_SPEED = 500; // Drop speed base in ms (slower for easier difficulty)
+const GAME_SPEED = 1500; // Drop speed base in ms (slower for easier difficulty)
 
 // Type Definitions
 type TetrominoShape = (string | number)[][];
@@ -24,7 +24,7 @@ type CellState = "clear" | "merged";
 type BoardCell = [string | number, CellState];
 type Board = BoardCell[][];
 
-// Tetromino definitions
+// Tetromino definitions 
 const TETROMINOS: Record<string, TetrominoData> = {
   "0": { shape: [[0]], color: "transparent" },
   I: {

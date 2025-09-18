@@ -4,7 +4,7 @@ import React, { JSX, useCallback, useEffect, useRef, useState } from "react";
 // Constants
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
-const GAME_SPEED = 500; // Drop speed base in ms (slower for easier difficulty)
+const GAME_SPEED = 2000; // Drop speed base in ms (slower for easier difficulty)
 
 // Type Definitions
 type TetrominoShape = (string | number)[][];
